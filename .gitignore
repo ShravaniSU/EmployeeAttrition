@@ -6,3 +6,8 @@ data/*.csv
 *.egg-info/
 .dvc/cache
 mlflow_run_id.txt
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/.terraform.lock.hcl
+terraform/terraform.tfvars
