@@ -16,6 +16,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # ── Convert owner to lowercase for Docker image naming ──────────────────
+      - name: Set lowercase owner
+        run: echo "repository_owner_lc=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+        
       # ── Step 2: Set up Python ───────────────────────────────────────────────
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -61,7 +65,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -f api/Dockerfile \
-            -t ghcr.io/${{ github.repository_owner }}/attrition-api:latest .
+            -t ghcr.io/${{ github.repository_owner_lc }}/attrition-api:latest .
 
       # ── Step 8: Push to GitHub Container Registry ───────────────────────────
       # ghcr.io is GitHub's free built-in container registry
@@ -70,7 +74,7 @@ jobs:
         run: |
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
             -u ${{ github.actor }} --password-stdin
-          docker push ghcr.io/${{ github.repository_owner }}/attrition-api:latest
+          docker push ghcr.io/${{ github.repository_owner_lc }}/attrition-api:latest
 
       # ── Step 9: Deploy to EC2 ───────────────────────────────────────────────
       # SSHes into EC2, pulls new image, restarts container
@@ -83,10 +87,10 @@ jobs:
           script: |
             # Login to ghcr.io on EC2
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
-              -u ${{ github.repository_owner }} --password-stdin
+              -u ${{ github.repository_owner_lc }} --password-stdin
 
             # Pull latest image
-            docker pull ghcr.io/${{ github.repository_owner }}/attrition-api:latest
+            docker pull ghcr.io/${{ github.repository_owner_lc }}/attrition-api:latest
 
             # Stop and remove old container if running
             docker stop attrition-api || true
@@ -100,6 +104,6 @@ jobs:
               -e MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }} \
               -e MLFLOW_TRACKING_USERNAME=${{ secrets.MLFLOW_TRACKING_USERNAME }} \
               -e MLFLOW_TRACKING_PASSWORD=${{ secrets.MLFLOW_TRACKING_PASSWORD }} \
-              ghcr.io/${{ github.repository_owner }}/attrition-api:latest
+              ghcr.io/${{ github.repository_owner_lc }}/attrition-api:latest
 
             echo "Deployed successfully"
