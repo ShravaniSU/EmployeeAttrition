@@ -53,6 +53,12 @@ jobs:
           python src/gate.py
           echo "Gate passed — proceeding to Docker build"
 
+      # ── Step 7a: Login to GHCR before building ──────────────────────────────
+      - name: Login to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
+            -u shravanisurankar --password-stdin
+
       # ── Step 7: Build Docker image ──────────────────────────────────────────
       - name: Build Docker image
         run: |
@@ -60,10 +66,7 @@ jobs:
 
       # ── Step 8: Push to GitHub Container Registry ───────────────────────────
       - name: Push to GitHub Container Registry
-        run: |
-          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
-            -u shravanisurankar --password-stdin
-          docker push ${{ env.IMAGE }}
+        run: docker push ${{ env.IMAGE }}
 
       # ── Step 9: Deploy to EC2 ───────────────────────────────────────────────
       - name: Deploy to EC2
