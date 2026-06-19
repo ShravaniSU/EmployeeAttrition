@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+data/*.csv
+*.egg-info/
+.dvc/cache
+mlflow_run_id.txt
