@@ -9,8 +9,13 @@ jobs:
   ml-pipeline:
     runs-on: ubuntu-latest
 
+    # Give this job permission to write packages to GHCR
+    permissions:
+      contents: read
+      packages: write
+
     env:
-      IMAGE: ghcr.io/shravanisurankar/attrition-api:latest
+      IMAGE: ghcr.io/shravanisu/attrition-api:latest
 
     steps:
       # ── Step 1: Checkout code ───────────────────────────────────────────────
@@ -53,22 +58,24 @@ jobs:
           python src/gate.py
           echo "Gate passed — proceeding to Docker build"
 
-      # ── Step 7a: Login to GHCR before building ──────────────────────────────
+      # ── Step 7: Login to GHCR using built-in GITHUB_TOKEN ──────────────────
+      # GITHUB_TOKEN is automatically provided by GitHub Actions
+      # No secret needed — cleaner and more secure than a PAT
       - name: Login to GitHub Container Registry
         run: |
-          echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
-            -u shravanisurankar --password-stdin
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io \
+            -u shravanisu --password-stdin
 
-      # ── Step 7: Build Docker image ──────────────────────────────────────────
+      # ── Step 8: Build Docker image ──────────────────────────────────────────
       - name: Build Docker image
         run: |
           docker build -f api/Dockerfile -t ${{ env.IMAGE }} .
 
-      # ── Step 8: Push to GitHub Container Registry ───────────────────────────
+      # ── Step 9: Push to GitHub Container Registry ───────────────────────────
       - name: Push to GitHub Container Registry
         run: docker push ${{ env.IMAGE }}
 
-      # ── Step 9: Deploy to EC2 ───────────────────────────────────────────────
+      # ── Step 10: Deploy to EC2 ──────────────────────────────────────────────
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -76,8 +83,10 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            # On EC2 we still need GHCR_TOKEN (a PAT) to pull the image —
+            # GITHUB_TOKEN only exists inside the Actions run, not on EC2.
             echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
-              -u shravanisurankar --password-stdin
+              -u shravanisu --password-stdin
 
             docker pull ${{ env.IMAGE }}
 
