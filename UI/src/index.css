@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-glass: rgba(255, 255, 255, 0.72);
+  --color-glass-border: rgba(255, 255, 255, 0.9);
+  --color-accent-from: #6366f1;
+  --color-accent-to: #a855f7;
+}
+
+body {
+  background: linear-gradient(135deg, #f0f4ff 0%, #fdf0fa 50%, #f0fdf8 100%);
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  margin: 0;
+  color: #1e293b;
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(100vh) scale(0);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100px) scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-width {
+  0% {
+    width: 60px;
+  }
+  100% {
+    width: 100px;
+  }
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.6;
+  }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.animate-pulse-width {
+  animation: pulse-width 2s ease-in-out infinite alternate;
+}
+
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+}
+
+.btn-shimmer:hover::after {
+  transform: translateX(100%);
+  transition: transform 0.5s ease-in-out;
+}
+
+/* Dashboard Layout */
+.dashboard-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: none;
+  border: none;
+}
+
+.dashboard-header {
+  padding: 32px 64px;
+}
+
+.dashboard-banner {
+  padding: 10px 64px;
+}
+
+.dashboard-main {
+  padding: 24px 64px 40px;
+  display: flex;
+  flex-direction: row;
+  gap: 32px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dashboard-left {
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-right {
+  width: 40%;
+  position: relative;
+}
+
+.sticky-container {
+  position: sticky;
+  top: 24px;
+}
+
+.dashboard-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 64px 24px;
+  font-size: 11px;
+  color: #64748b;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 900px) {
+  .dashboard-header {
+    padding: 24px 24px;
+  }
+  .dashboard-banner {
+    padding: 10px 24px;
+  }
+  .dashboard-main {
+    padding: 24px 24px 40px;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .dashboard-left {
+    width: 100%;
+  }
+  .dashboard-right {
+    width: 100%;
+  }
+  .sticky-container {
+    position: static;
+  }
+  .dashboard-footer {
+    padding: 20px 24px 30px;
+  }
+}
+

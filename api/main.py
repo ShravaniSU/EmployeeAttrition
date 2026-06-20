@@ -15,6 +15,7 @@ import mlflow
 import mlflow.sklearn
 import pandas as pd
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
@@ -34,6 +35,11 @@ mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
 # ── Config ────────────────────────────────────────────────────────────────────
 
 MODEL_REGISTRY_NAME = "attrition-model"
+CORS_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("CORS_ORIGINS", "*").split(",")
+    if origin.strip()
+]
 
 # Load "Production" stage if available, otherwise latest version
 MODEL_URI = f"models:/{MODEL_REGISTRY_NAME}/latest"
@@ -77,6 +83,14 @@ app = FastAPI(
     description="Predicts whether an employee is likely to leave the company.",
     version="1.0.0",
     lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
