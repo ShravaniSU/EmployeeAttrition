@@ -2,7 +2,7 @@
 
 [![CI/CD Pipeline](https://github.com/yourusername/employee-attrition-mlops/actions/workflows/ml-pipeline.yml/badge.svg)](https://github.com/yourusername/employee-attrition-mlops/actions)
 
-A production-grade MLOps project that predicts employee attrition using a Random Forest classifier while demonstrating the complete machine learning lifecycle—from data validation and experiment tracking to model quality gating, containerized deployment, and automated CI/CD on AWS.
+A production-grade MLOps project that predicts employee attrition using a Random Forest classifier and Gradient Boosting while demonstrating the complete machine learning lifecycle—from data validation and experiment tracking to model quality gating, containerized deployment, and automated CI/CD on AWS.
 
 🌐 **Live Application:** https://employeeattrition.shravaniurankar.in
 
@@ -104,8 +104,8 @@ The platform includes:
 
                            ┌────────────────────────┐
                            │ Quality Gate           │
-                           │ gate.py               │
-                           │ F1 >= 0.75 Required   │
+                           │ gate.py                │
+                           │ F1 >= 0.4 Required     │
                            └─────────┬─────────────┘
                                      │
                         Pass         │         Fail
@@ -117,7 +117,7 @@ The platform includes:
                                     ▼
 
                           ┌───────────────────┐
-                          │ Docker Hub        │
+                          │ Github            │
                           └─────────┬─────────┘
                                     │
                                     ▼
@@ -147,14 +147,14 @@ Every push to the repository automatically triggers:
 2. Validate Dataset
           │
           ▼
-3. Train Random Forest Model
+3. Train Random Forest Model/ Gradient Boosting
           │
           ▼
 4. Log Metrics to MLflow
           │
           ▼
 5. Quality Gate Check
-   (F1 Score >= 0.75)
+   (F1 Score >= 0.4)
           │
           ▼
 6. Build Docker Image
