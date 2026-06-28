@@ -1,14 +1,13 @@
 
-import { AlertCircle, AlertTriangle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
 interface HealthBannerProps {
   connected: boolean;
-  modelLoaded: boolean;
   responseTime: number | null;
   error: string | null;
 }
 
-export default function HealthBanner({ connected, modelLoaded, responseTime, error }: HealthBannerProps) {
+export default function HealthBanner({ connected, responseTime, error }: HealthBannerProps) {
   if (error !== null) {
     return (
       <div
@@ -60,26 +59,6 @@ export default function HealthBanner({ connected, modelLoaded, responseTime, err
       </div>
     );
   }
-
-  // if (connected && !modelLoaded) {
-  //   return (
-  //     <div
-  //       className="dashboard-banner"
-  //       style={{
-  //         background: "#fff7ed",
-  //         borderBottom: "1px solid #fed7aa",
-  //         display: "flex",
-  //         alignItems: "center",
-  //         gap: "8px",
-  //         fontSize: "12px",
-  //         color: "#92400e",
-  //       }}
-  //     >
-  //       <AlertTriangle size={14} color="#d97706" />
-  //       <span>API connected but model not loaded</span>
-  //     </div>
-  //   );
-  // }
 
   return (
     <div

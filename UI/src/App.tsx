@@ -12,7 +12,6 @@ import type { ApiState, PredictionResponse, EmployeeFeatures } from "./types";
 export default function App() {
   const [apiState, setApiState] = useState<ApiState>({
     connected: false,
-    modelLoaded: false,
     responseTime: null,
     error: null,
   });
@@ -27,7 +26,6 @@ export default function App() {
         const data = await checkHealth();
         setApiState({
           connected: true,
-          modelLoaded: data.model_loaded,
           responseTime: Date.now() - start,
           error: null,
         });
@@ -35,7 +33,6 @@ export default function App() {
         const errorMessage = err instanceof Error ? err.message : "Failed to connect to prediction API";
         setApiState({
           connected: false,
-          modelLoaded: false,
           responseTime: null,
           error: errorMessage,
         });

@@ -45,7 +45,6 @@ export interface HealthResponse {
 
 export interface ApiState {
   connected: boolean;
-  modelLoaded: boolean;
   responseTime: number | null;
   error: string | null;
 }
