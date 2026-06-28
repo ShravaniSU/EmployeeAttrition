@@ -9,98 +9,88 @@ jobs:
   ml-pipeline:
     runs-on: ubuntu-latest
 
-    # Give this job permission to write packages to GHCR
     permissions:
       contents: read
       packages: write
 
     env:
-      IMAGE: ghcr.io/shravanisu/attrition-api:latest
+      # Change this to your ECR URI
+      IMAGE: 418553863256.dkr.ecr.ap-south-1.amazonaws.com/employee-attrition-api:latest
 
     steps:
-      # ── Step 1: Checkout code ───────────────────────────────────────────────
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # ── Step 2: Set up Python ───────────────────────────────────────────────
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      # ── Step 3: Install dependencies ────────────────────────────────────────
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # ── Step 4: Validate data ───────────────────────────────────────────────
-      - name: Validate data
-        env:
-          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
-          MLFLOW_TRACKING_USERNAME: ${{ secrets.MLFLOW_TRACKING_USERNAME }}
-          MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
-        run: python src/validate.py
-
-      # ── Step 5: Train model ─────────────────────────────────────────────────
-      - name: Train model
-        env:
-          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
-          MLFLOW_TRACKING_USERNAME: ${{ secrets.MLFLOW_TRACKING_USERNAME }}
-          MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
-        run: python src/train.py
-
-      # ── Step 6: Model quality gate ──────────────────────────────────────────
-      - name: Model quality gate
+      - name: Validate and Train
         env:
           MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
           MLFLOW_TRACKING_USERNAME: ${{ secrets.MLFLOW_TRACKING_USERNAME }}
           MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
         run: |
+          python src/validate.py
+          python src/train.py
           python src/gate.py
-          echo "Gate passed — proceeding to Docker build"
 
-      # ── Step 7: Login to GHCR using built-in GITHUB_TOKEN ──────────────────
-      # GITHUB_TOKEN is automatically provided by GitHub Actions
-      # No secret needed — cleaner and more secure than a PAT
-      - name: Login to GitHub Container Registry
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io \
-            -u shravanisu --password-stdin
+      # ── NEW: Configure AWS Credentials ─────────────────────────────────────
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
 
-      # ── Step 8: Build Docker image ──────────────────────────────────────────
-      - name: Build Docker image
+      # ── NEW: Login to Amazon ECR ───────────────────────────────────────────
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # ── Build and Push to ECR ──────────────────────────────────────────────
+      - name: Build, tag, and push image to Amazon ECR
         run: |
           docker build -f api/Dockerfile -t ${{ env.IMAGE }} .
+          docker push ${{ env.IMAGE }}
 
-      # ── Step 9: Push to GitHub Container Registry ───────────────────────────
-      - name: Push to GitHub Container Registry
-        run: docker push ${{ env.IMAGE }}
-
+      # ── NEW: Update AWS Lambda ─────────────────────────────────────────────
+      - name: Update Lambda Function
+        run: |
+          aws lambda update-function-code \
+            --function-name employee-attrition-api \
+            --image-uri ${{ env.IMAGE }}
+      
       # ── Step 10: Deploy to EC2 ──────────────────────────────────────────────
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
-          script: |
-            # On EC2 we still need GHCR_TOKEN (a PAT) to pull the image —
-            # GITHUB_TOKEN only exists inside the Actions run, not on EC2.
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
-              -u shravanisu --password-stdin
+      # - name: Deploy to EC2
+      #   uses: appleboy/ssh-action@v1.0.3
+      #   with:
+      #     host: ${{ secrets.EC2_HOST }}
+      #     username: ${{ secrets.EC2_USER }}
+      #     key: ${{ secrets.EC2_KEY }}
+      #     script: |
+      #       # On EC2 we still need GHCR_TOKEN (a PAT) to pull the image —
+      #       # GITHUB_TOKEN only exists inside the Actions run, not on EC2.
+      #       echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io \
+      #         -u shravanisu --password-stdin
 
-            docker pull ${{ env.IMAGE }}
+      #       docker pull ${{ env.IMAGE }}
 
-            docker stop attrition-api || true
-            docker rm attrition-api || true
+      #       docker stop attrition-api || true
+      #       docker rm attrition-api || true
 
-            docker run -d \
-              --name attrition-api \
-              --restart unless-stopped \
-              -p 8000:8000 \
-              -e MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }} \
-              -e MLFLOW_TRACKING_USERNAME=${{ secrets.MLFLOW_TRACKING_USERNAME }} \
-              -e MLFLOW_TRACKING_PASSWORD=${{ secrets.MLFLOW_TRACKING_PASSWORD }} \
-              -e CORS_ORIGINS=${{ secrets.CORS_ORIGINS }} \
-              ${{ env.IMAGE }}
+      #       docker run -d \
+      #         --name attrition-api \
+      #         --restart unless-stopped \
+      #         -p 8000:8000 \
+      #         -e MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }} \
+      #         -e MLFLOW_TRACKING_USERNAME=${{ secrets.MLFLOW_TRACKING_USERNAME }} \
+      #         -e MLFLOW_TRACKING_PASSWORD=${{ secrets.MLFLOW_TRACKING_PASSWORD }} \
+      #         -e CORS_ORIGINS=${{ secrets.CORS_ORIGINS }} \
+      #         ${{ env.IMAGE }}
 
-            echo "Deployed successfully"
+      #       echo "Deployed successfully"

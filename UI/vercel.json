@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://quej3q2n354d5tnwi3itshiaje0gafve.lambda-url.ap-south-1.on.aws/:path*"
+    }
+  ]
+}

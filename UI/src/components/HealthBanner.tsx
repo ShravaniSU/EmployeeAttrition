@@ -29,7 +29,7 @@ export default function HealthBanner({ connected, modelLoaded, responseTime, err
     );
   }
 
-  if (connected && modelLoaded) {
+  if (connected) {
     return (
       <div
         className="dashboard-banner"
@@ -54,32 +54,32 @@ export default function HealthBanner({ connected, modelLoaded, responseTime, err
           }}
         />
         <span>
-          API connected · model loaded
+          API connected 
           {responseTime !== null ? ` · response time ${responseTime}ms` : ""}
         </span>
       </div>
     );
   }
 
-  if (connected && !modelLoaded) {
-    return (
-      <div
-        className="dashboard-banner"
-        style={{
-          background: "#fff7ed",
-          borderBottom: "1px solid #fed7aa",
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          fontSize: "12px",
-          color: "#92400e",
-        }}
-      >
-        <AlertTriangle size={14} color="#d97706" />
-        <span>API connected but model not loaded</span>
-      </div>
-    );
-  }
+  // if (connected && !modelLoaded) {
+  //   return (
+  //     <div
+  //       className="dashboard-banner"
+  //       style={{
+  //         background: "#fff7ed",
+  //         borderBottom: "1px solid #fed7aa",
+  //         display: "flex",
+  //         alignItems: "center",
+  //         gap: "8px",
+  //         fontSize: "12px",
+  //         color: "#92400e",
+  //       }}
+  //     >
+  //       <AlertTriangle size={14} color="#d97706" />
+  //       <span>API connected but model not loaded</span>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div
