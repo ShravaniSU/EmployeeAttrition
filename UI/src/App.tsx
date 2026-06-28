@@ -23,7 +23,7 @@ export default function App() {
     const fetchHealth = async () => {
       const start = Date.now();
       try {
-        const data = await checkHealth();
+        await checkHealth();
         setApiState({
           connected: true,
           responseTime: Date.now() - start,
