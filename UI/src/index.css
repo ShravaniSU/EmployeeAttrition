@@ -3,82 +3,90 @@
 @tailwind utilities;
 
 :root {
-  --color-glass: rgba(255, 255, 255, 0.72);
-  --color-glass-border: rgba(255, 255, 255, 0.9);
-  --color-accent-from: #6366f1;
-  --color-accent-to: #a855f7;
+  --color-paper: #F3EFE6;
+  --color-ink: #1F2620;
+  --color-accent: #8B5E3C;
+  --color-divider: #C9C0AC;
+  
+  --color-verdict-low: #4C7A5E;
+  --color-verdict-med: #C98A3E;
+  --color-verdict-high: #B0472F;
 }
 
 body {
-  background: linear-gradient(135deg, #f0f4ff 0%, #fdf0fa 50%, #f0fdf8 100%);
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: 'IBM Plex Sans', -apple-system, sans-serif;
   min-height: 100vh;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   margin: 0;
-  color: #1e293b;
 }
 
-@keyframes float-up {
-  0% {
-    transform: translateY(100vh) scale(0);
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-100px) scale(1.2);
-    opacity: 0;
-  }
+/* Custom fonts styling helper */
+.font-serif {
+  font-family: 'IBM Plex Serif', Georgia, serif;
 }
 
-@keyframes pulse-width {
-  0% {
-    width: 60px;
-  }
-  100% {
-    width: 100px;
-  }
+.font-mono {
+  font-family: 'IBM Plex Mono', monospace;
 }
 
-@keyframes pulse-dot {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.4);
-    opacity: 0.6;
-  }
+.font-sans {
+  font-family: 'IBM Plex Sans', sans-serif;
 }
 
-.animate-pulse-dot {
-  animation: pulse-dot 2s ease-in-out infinite;
+/* Underline inputs */
+.dossier-input, .dossier-select {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid var(--color-divider) !important;
+  border-radius: 0 !important;
+  padding: 6px 0 !important;
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 13px !important;
+  color: var(--color-ink) !important;
+  width: 100% !important;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: border-color 0.2s ease;
 }
 
-.animate-pulse-width {
-  animation: pulse-width 2s ease-in-out infinite alternate;
+.dossier-input:focus, .dossier-select:focus {
+  border-bottom: 2px solid var(--color-accent) !important;
 }
 
-.btn-shimmer {
-  position: relative;
-  overflow: hidden;
+.dossier-select option {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
 }
 
-.btn-shimmer::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.25) 50%,
-    transparent 100%
-  );
-  transform: translateX(-100%);
+/* Custom button */
+.dossier-button {
+  background-color: var(--color-accent) !important;
+  color: var(--color-paper) !important;
+  font-family: 'IBM Plex Sans', sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  border: none !important;
+  border-radius: 4px !important;
+  padding: 12px 24px !important;
+  cursor: pointer !important;
+  transition: transform 0.1s ease, background-color 0.2s ease !important;
+  box-shadow: none !important;
 }
 
-.btn-shimmer:hover::after {
-  transform: translateX(100%);
-  transition: transform 0.5s ease-in-out;
+.dossier-button:active {
+  transform: scale(0.98) !important;
+}
+
+.dossier-button:hover:not(:disabled) {
+  background-color: #744d30 !important;
+}
+
+.dossier-button:disabled {
+  background-color: var(--color-divider) !important;
+  color: #7f7766 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
 }
 
 /* Dashboard Layout */
@@ -87,7 +95,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.15);
+  background: transparent;
   box-shadow: none;
   border: none;
 }
@@ -131,11 +139,12 @@ body {
   align-items: center;
   padding: 20px 64px 24px;
   font-size: 11px;
-  color: #64748b;
+  color: #7f7766;
   flex-wrap: wrap;
   gap: 12px;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  background: rgba(255, 255, 255, 0.2);
+  border-top: 1px solid var(--color-divider);
+  background: transparent;
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 @media (max-width: 900px) {
@@ -163,4 +172,3 @@ body {
     padding: 20px 24px 30px;
   }
 }
-

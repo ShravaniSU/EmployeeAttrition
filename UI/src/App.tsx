@@ -81,32 +81,28 @@ export default function App() {
                 ) : (
                   <motion.div
                     key="placeholder"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
                     style={{
-                      background: "rgba(255, 255, 255, 0.45)",
-                      backdropFilter: "blur(20px)",
-                      WebkitBackdropFilter: "blur(20px)",
-                      border: "2px dashed rgba(148, 163, 184, 0.4)",
-                      borderRadius: "14px",
+                      background: "#FCFBF9",
+                      border: "1px dashed #C9C0AC",
                       padding: "40px 24px",
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
                       justifyContent: "center",
                       textAlign: "center",
-                      minHeight: "320px",
-                      color: "#64748b",
-                      marginTop: "16px",
+                      minHeight: "360px",
+                      color: "#7f7766",
                     }}
                   >
-                    <Brain size={48} style={{ color: "#94a3b8", marginBottom: "16px", strokeWidth: 1.5 }} />
-                    <h4 style={{ fontSize: "15px", fontWeight: 600, color: "#475569", margin: "0 0 8px" }}>
+                    <Brain size={32} style={{ color: "#8B5E3C", marginBottom: "16px", strokeWidth: 1.5 }} />
+                    <h4 style={{ fontFamily: "'IBM Plex Serif', Georgia, serif", fontSize: "16px", fontWeight: "bold", color: "#1F2620", margin: "0 0 8px" }}>
                       Awaiting Analysis
                     </h4>
-                    <p style={{ fontSize: "12px", color: "#64748b", margin: 0, maxWidth: "240px", lineHeight: "1.6" }}>
+                    <p style={{ fontFamily: "'IBM Plex Sans', sans-serif", fontSize: "12px", color: "#7f7766", margin: 0, maxWidth: "220px", lineHeight: "1.6" }}>
                       Fill the form and click predict to see results here
                     </p>
                   </motion.div>
@@ -122,21 +118,21 @@ export default function App() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "4px",
-              background: "#f5f3ff",
-              border: "1px solid #ddd6fe",
+              gap: "6px",
+              border: "1px solid #C9C0AC",
               padding: "4px 8px",
-              borderRadius: "12px",
-              color: "#6d28d9",
-              fontWeight: 500,
+              color: "#8B5E3C",
+              fontWeight: "bold",
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: "11px",
             }}
           >
             <Atom size={12} className="animate-spin-slow" />
-            <span>Powered by MLflow + FastAPI</span>
+            <span>SYS_ENGINE: MLFLOW + FASTAPI</span>
           </div>
 
           {/* Right text */}
-          <div style={{ fontWeight: 400, color: "#64748b" }}>
+          <div style={{ fontWeight: 500, color: "#7f7766", fontFamily: "'IBM Plex Mono', monospace", fontSize: "11px" }}>
             IBM HR Analytics · Gradient Boosting model
           </div>
         </footer>

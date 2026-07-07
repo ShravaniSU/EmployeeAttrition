@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import type { CSSProperties } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, AlertTriangle } from "lucide-react";
 import type { PredictionResponse } from "../types";
 
 interface ResultCardProps {
@@ -10,7 +9,6 @@ interface ResultCardProps {
 }
 
 export default function ResultCard({ result, responseTime }: ResultCardProps) {
-  const isSuccess = result.attrition_prediction === 0;
   const probabilityPercent = Math.round(result.attrition_probability * 100);
   const [barWidth, setBarWidth] = useState(0);
 
@@ -21,97 +19,121 @@ export default function ResultCard({ result, responseTime }: ResultCardProps) {
     return () => clearTimeout(timer);
   }, [probabilityPercent]);
 
+  let verdict = "LOW RISK";
+  let verdictColor = "#4C7A5E";
+  let verdictDesc = "This employee shows high stability and is likely to remain at the company.";
+
+  if (result.attrition_probability > 0.65) {
+    verdict = "FLIGHT RISK";
+    verdictColor = "#B0472F";
+    verdictDesc = "High probability of attrition. Intervention recommended.";
+  } else if (result.attrition_probability >= 0.35) {
+    verdict = "MEDIUM RISK";
+    verdictColor = "#C98A3E";
+    verdictDesc = "Moderate probability of attrition. Monitor satisfaction levels.";
+  }
+
   const cardStyle: CSSProperties = {
-    background: isSuccess
-      ? "linear-gradient(135deg, #f0fdf4, #dcfce7)"
-      : "linear-gradient(135deg, #fff7ed, #ffedd5)",
-    border: isSuccess ? "1.5px solid #86efac" : "1.5px solid #fdba74",
-    borderRadius: "14px",
-    padding: "20px",
-    marginTop: "16px",
-    boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02)",
+    background: "#FCFBF9",
+    border: "1px solid #C9C0AC",
+    padding: "32px",
+    display: "flex",
+    flexDirection: "column",
+    boxShadow: "none",
+    position: "relative",
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ type: "spring", stiffness: 300, damping: 25 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.15 }}
       style={cardStyle}
     >
+      {/* SVG Ink Bleed Filter */}
+      <svg style={{ position: "absolute", width: 0, height: 0 }}>
+        <filter id="ink-bleed">
+          <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="3" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </svg>
+
       {/* Header Row */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          {/* Icon Circle */}
-          <div
-            style={{
-              width: "44px",
-              height: "44px",
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              background: isSuccess ? "#bbf7d0" : "#fed7aa",
-            }}
-          >
-            {isSuccess ? (
-              <CheckCircle2 size={22} color="#16a34a" />
-            ) : (
-              <AlertTriangle size={22} color="#ea580c" />
-            )}
-          </div>
+      <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1.5px solid #8B5E3C", paddingBottom: "10px" }}>
+        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: "11px", fontWeight: "bold", color: "#8B5E3C", letterSpacing: "0.1em" }}>
+          CLF-VERDICT // RECORD: #IBM-CASE-VERDICT
+        </span>
+        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: "11px", color: "#7f7766" }}>
+          SYS_OK
+        </span>
+      </div>
 
-          <div>
-            <h4
-              style={{
-                fontSize: "17px",
-                fontWeight: 600,
-                color: isSuccess ? "#166534" : "#9a3412",
-                margin: 0,
-              }}
-            >
-              {isSuccess ? "Low Attrition Risk" : "High Attrition Risk"}
-            </h4>
-            <p style={{ fontSize: "12px", color: isSuccess ? "#15803d" : "#c2410c", margin: 0 }}>
-              {isSuccess ? "This employee is likely to stay" : "This employee may leave"}
-            </p>
-          </div>
-        </div>
-
-        {/* Probability Large */}
-        <div
+      {/* Rubber Stamp Seal */}
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "160px" }}>
+        <motion.div
+          initial={{ scale: 2.2, rotate: -25, opacity: 0 }}
+          animate={{ scale: 1, rotate: -5, opacity: 0.9 }}
+          transition={{ type: "spring", stiffness: 350, damping: 13, delay: 0.05 }}
           style={{
-            fontSize: "28px",
-            fontWeight: 600,
-            color: isSuccess ? "#16a34a" : "#ea580c",
+            border: `4px solid ${verdictColor}`,
+            padding: "12px 24px",
+            borderRadius: "4px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            color: verdictColor,
+            backgroundColor: "transparent",
+            fontFamily: "'IBM Plex Serif', Georgia, serif",
+            fontWeight: 800,
+            fontSize: "24px",
+            letterSpacing: "0.15em",
+            transform: "rotate(-5deg)",
+            mixBlendMode: "multiply",
+            filter: "url(#ink-bleed)",
           }}
         >
-          {probabilityPercent}%
-        </div>
+          <div style={{ borderBottom: `2.5px solid ${verdictColor}`, width: "100%", textAlign: "center", paddingBottom: "4px", marginBottom: "4px" }}>
+            {verdict}
+          </div>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: "11px", fontWeight: "bold", letterSpacing: "0.05em" }}>
+            PROBABILITY: {probabilityPercent}%
+          </div>
+        </motion.div>
       </div>
+
+      {/* Verdict Description */}
+      <p style={{
+        fontFamily: "'IBM Plex Sans', sans-serif",
+        fontSize: "12px",
+        color: "#1F2620",
+        textAlign: "center",
+        margin: "0 0 24px",
+        fontStyle: "italic",
+        lineHeight: 1.5
+      }}>
+        {verdictDesc}
+      </p>
 
       {/* Probability Bar */}
       <div style={{ marginTop: "16px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-          <span style={{ fontSize: "11px", color: "#64748b", fontWeight: 500 }}>Attrition probability</span>
-          <span style={{ fontSize: "11px", color: "#64748b", fontWeight: 600 }}>{result.attrition_probability}</span>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontFamily: "'IBM Plex Mono', monospace", fontSize: "10px", color: "#7f7766", letterSpacing: "0.05em" }}>
+          <span>ATTRITION PROBABILITY SCALE</span>
+          <span>{result.attrition_probability.toFixed(4)}</span>
         </div>
         <div
           style={{
-            height: "8px",
-            background: "rgba(0, 0, 0, 0.08)",
-            borderRadius: "999px",
+            height: "6px",
+            background: "#E6DFD3",
+            borderRadius: "3px",
             overflow: "hidden",
           }}
         >
           <div
             style={{
               height: "100%",
-              borderRadius: "999px",
-              background: isSuccess
-                ? "linear-gradient(90deg, #4ade80, #22c55e)"
-                : "linear-gradient(90deg, #fb923c, #ef4444)",
+              backgroundColor: verdictColor,
               width: `${barWidth}%`,
               transition: "width 800ms cubic-bezier(0.4, 0, 0.2, 1)",
             }}
@@ -119,41 +141,36 @@ export default function ResultCard({ result, responseTime }: ResultCardProps) {
         </div>
       </div>
 
-      {/* Meta Row */}
+      {/* Ledger Table Metadata */}
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          gap: "16px",
-          marginTop: "14px",
-          paddingTop: "14px",
-          borderTop: "1px solid rgba(0, 0, 0, 0.07)",
-          flexWrap: "wrap",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          rowGap: "10px",
+          columnGap: "16px",
+          marginTop: "24px",
+          paddingTop: "16px",
+          borderTop: "1px dashed #C9C0AC",
+          fontFamily: "'IBM Plex Mono', monospace",
+          fontSize: "11px",
+          color: "#1F2620",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: "11px", color: "#64748b" }}>Prediction</span>
-          <span style={{ fontSize: "13px", fontWeight: 500, color: "#1e293b" }}>
-            {result.attrition_prediction}
-          </span>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ color: "#7f7766" }}>PREDICT_VAL:</span>
+          <span style={{ fontWeight: "bold" }}>{result.attrition_prediction}</span>
         </div>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: "11px", color: "#64748b" }}>Label</span>
-          <span style={{ fontSize: "13px", fontWeight: 500, color: "#1e293b" }}>
-            {result.attrition_label}
-          </span>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ color: "#7f7766" }}>LABEL:</span>
+          <span style={{ fontWeight: "bold" }}>{result.attrition_label}</span>
         </div>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: "11px", color: "#64748b" }}>Probability</span>
-          <span style={{ fontSize: "13px", fontWeight: 500, color: "#1e293b" }}>
-            {result.attrition_probability}
-          </span>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ color: "#7f7766" }}>PROB:</span>
+          <span style={{ fontWeight: "bold" }}>{result.attrition_probability.toFixed(4)}</span>
         </div>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <span style={{ fontSize: "11px", color: "#64748b" }}>Response time</span>
-          <span style={{ fontSize: "13px", fontWeight: 500, color: "#1e293b" }}>
-            {responseTime}ms
-          </span>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span style={{ color: "#7f7766" }}>LATENCY:</span>
+          <span style={{ fontWeight: "bold" }}>{responseTime}ms</span>
         </div>
       </div>
     </motion.div>

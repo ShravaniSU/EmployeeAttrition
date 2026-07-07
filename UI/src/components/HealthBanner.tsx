@@ -1,5 +1,4 @@
-
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, HelpCircle } from "lucide-react";
 
 interface HealthBannerProps {
   connected: boolean;
@@ -13,17 +12,18 @@ export default function HealthBanner({ connected, responseTime, error }: HealthB
       <div
         className="dashboard-banner"
         style={{
-          background: "#fef2f2",
-          borderBottom: "1px solid #fecaca",
+          background: "transparent",
+          borderBottom: "1px solid #C9C0AC",
           display: "flex",
           alignItems: "center",
           gap: "8px",
-          fontSize: "12px",
-          color: "#991b1b",
+          fontSize: "11px",
+          fontFamily: "'IBM Plex Mono', monospace",
+          color: "#B0472F",
         }}
       >
-        <AlertCircle size={14} color="#dc2626" />
-        <span>{error}</span>
+        <AlertCircle size={12} color="#B0472F" />
+        <span>[CONNECTION FAILED] SERVICE OFFLINE // ERROR: {error.toUpperCase()}</span>
       </div>
     );
   }
@@ -33,28 +33,19 @@ export default function HealthBanner({ connected, responseTime, error }: HealthB
       <div
         className="dashboard-banner"
         style={{
-          background: "#f0fdf4",
-          borderBottom: "1px solid #bbf7d0",
+          background: "transparent",
+          borderBottom: "1px solid #C9C0AC",
           display: "flex",
           alignItems: "center",
           gap: "8px",
-          fontSize: "12px",
-          color: "#166534",
+          fontSize: "11px",
+          fontFamily: "'IBM Plex Mono', monospace",
+          color: "#4C7A5E",
         }}
       >
-        <span
-          className="animate-pulse-dot"
-          style={{
-            width: "7px",
-            height: "7px",
-            background: "#22c55e",
-            borderRadius: "50%",
-            display: "inline-block",
-          }}
-        />
+        <CheckCircle size={12} color="#4C7A5E" />
         <span>
-          API connected 
-          {responseTime !== null ? ` · response time ${responseTime}ms` : ""}
+          [SERVICE STATUS] API: ONLINE // LATENCY: {responseTime !== null ? `${responseTime}MS` : "N/A"} // MODE: PRODUCTION
         </span>
       </div>
     );
@@ -64,25 +55,18 @@ export default function HealthBanner({ connected, responseTime, error }: HealthB
     <div
       className="dashboard-banner"
       style={{
-        background: "#f8fafc",
-        borderBottom: "1px solid #e2e8f0",
+        background: "transparent",
+        borderBottom: "1px solid #C9C0AC",
         display: "flex",
         alignItems: "center",
         gap: "8px",
-        fontSize: "12px",
-        color: "#64748b",
+        fontSize: "11px",
+        fontFamily: "'IBM Plex Mono', monospace",
+        color: "#8B5E3C",
       }}
     >
-      <span
-        style={{
-          width: "7px",
-          height: "7px",
-          background: "#cbd5e1",
-          borderRadius: "50%",
-          display: "inline-block",
-        }}
-      />
-      <span>Checking API and model status...</span>
+      <HelpCircle size={12} className="animate-pulse" color="#8B5E3C" />
+      <span>[SERVICE STATUS] INITIALIZING CONNECTION TO PREDICTION SERVICE...</span>
     </div>
   );
 }
