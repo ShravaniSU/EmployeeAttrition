@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ChangeEvent, FormEvent, CSSProperties } from "react";
+import type { ChangeEvent, FocusEvent, FormEvent, CSSProperties } from "react";
 import { motion } from "framer-motion";
 import { User, Briefcase, DollarSign, TrendingUp, Zap, Loader2 } from "lucide-react";
 import type { EmployeeFeatures } from "../types";
@@ -72,19 +72,59 @@ const SectionLabel = ({ text }: { text: string }) => (
 );
 
 export default function PredictionForm({ onSubmit, isLoading }: PredictionFormProps) {
-  const [formData, setFormData] = useState<EmployeeFeatures>(DEFAULT_FEATURES);
+  const [formData, setFormData] = useState<Record<keyof EmployeeFeatures, string>>(() => {
+    const initial = {} as Record<keyof EmployeeFeatures, string>;
+    for (const key in DEFAULT_FEATURES) {
+      initial[key as keyof EmployeeFeatures] = String(DEFAULT_FEATURES[key as keyof EmployeeFeatures]);
+    }
+    return initial;
+  });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: parseInt(value, 10) || 0,
-    }));
+    
+    if (e.target.tagName === "INPUT") {
+      let cleanValue = value;
+      // Strip leading zeros unless the new value is just "0" (e.g. "06" -> "6")
+      if (/^0+(\d)/.test(cleanValue)) {
+        cleanValue = cleanValue.replace(/^0+/, "");
+      }
+      setFormData((prev) => ({
+        ...prev,
+        [name]: cleanValue,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
+  };
+
+  const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (value.trim() === "") {
+      const defaultValue = DEFAULT_FEATURES[name as keyof EmployeeFeatures];
+      setFormData((prev) => ({
+        ...prev,
+        [name]: String(defaultValue),
+      }));
+    }
   };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    const parsedData = {} as EmployeeFeatures;
+    for (const key in DEFAULT_FEATURES) {
+      const k = key as keyof EmployeeFeatures;
+      const value = formData[k];
+      if (value.trim() === "") {
+        parsedData[k] = DEFAULT_FEATURES[k];
+      } else {
+        parsedData[k] = parseInt(value, 10) || 0;
+      }
+    }
+    onSubmit(parsedData);
   };
 
   const dossierSheetStyle: CSSProperties = {
@@ -157,6 +197,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               max="100"
               value={formData.Age}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -188,6 +229,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               max="5"
               value={formData.Education}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -254,6 +296,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               max="5"
               value={formData.JobLevel}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -268,6 +311,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               max="4"
               value={formData.JobInvolvement}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -282,6 +326,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               max="4"
               value={formData.JobSatisfaction}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -296,6 +341,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               max="4"
               value={formData.EnvironmentSatisfaction}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -310,6 +356,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               max="4"
               value={formData.RelationshipSatisfaction}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -324,6 +371,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               max="4"
               value={formData.WorkLifeBalance}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -338,6 +386,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               max="4"
               value={formData.PerformanceRating}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -367,6 +416,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               min="0"
               value={formData.MonthlyIncome}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -380,6 +430,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               min="0"
               value={formData.DailyRate}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -393,6 +444,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               min="0"
               value={formData.HourlyRate}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -406,6 +458,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               min="0"
               value={formData.MonthlyRate}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -419,6 +472,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               min="0"
               value={formData.PercentSalaryHike}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -458,6 +512,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               min="0"
               value={formData.TotalWorkingYears}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -471,6 +526,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               min="0"
               value={formData.YearsAtCompany}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -484,6 +540,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               min="0"
               value={formData.YearsInCurrentRole}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -497,6 +554,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               min="0"
               value={formData.YearsSinceLastPromotion}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -510,6 +568,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               min="0"
               value={formData.YearsWithCurrManager}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -523,6 +582,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               min="0"
               value={formData.NumCompaniesWorked}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -536,6 +596,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               min="0"
               value={formData.TrainingTimesLastYear}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
@@ -549,6 +610,7 @@ export default function PredictionForm({ onSubmit, isLoading }: PredictionFormPr
               min="0"
               value={formData.DistanceFromHome}
               onChange={handleChange}
+              onBlur={handleBlur}
               className="dossier-input"
               required
             />
